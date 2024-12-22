@@ -2,6 +2,8 @@
 
 Custom widgets written in Odin for raylib.
 
+![Widgets Screenshot](images/widgets.png)
+
 ## Available Widgets
 
 * TextBox - You can have more than one on screen!
