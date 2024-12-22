@@ -73,7 +73,7 @@ DrawTextBox :: proc(textbox: ^TextBox) {
 				textbox.TextCursor = 0
 			}
 			if raylib.IsKeyPressed(raylib.KeyboardKey.END) {
-				textbox.TextCursor = i32(len(textbox.Text)) - 1
+				textbox.TextCursor = i32(len(textbox.Text))
 			}
 			if raylib.IsKeyPressed(raylib.KeyboardKey.DELETE) {
 				if textbox.TextCursor < i32(len(textbox.Text)) {
