@@ -2,6 +2,16 @@
 
 Custom widgets written in Odin for raylib.
 
+## Available Widgets
+
+* TextBox - You can have more than one on screen!
+
+## TODO
+
+* [ ] Figure out other widgets to make
+* [ ] Add text selection to TextBox
+* [ ] Add copy and paste functionality to TextBox
+
 ## Example
 
 ```odin
@@ -32,8 +42,6 @@ main :: proc() {
         CursorColor                  = raylib.GRAY,
         BorderThickness              = 1.0,
         TextPadding                  = 2.0,
-        TextSelectionColor           = raylib.BLACK,
-        TextSelectionBackgroundColor = raylib.GRAY,
     }
 
     // Add the TextBox to the widget manager
