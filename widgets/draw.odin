@@ -167,25 +167,6 @@ DrawTextBox :: proc(textbox: ^TextBox) {
 				textbox.FontSize,
 				textbox.FontSpacing,
 			)
-			// Draw the cursor
-			raylib.DrawLineEx(
-				{
-					textbox.Position.x +
-					textbox.TextPadding +
-					textbox.FontSpacing / 2 +
-					cursorPosRec.x,
-					textbox.Position.y + textbox.TextPadding / 2,
-				},
-				{
-					textbox.Position.x +
-					textbox.TextPadding +
-					textbox.FontSpacing / 2 +
-					cursorPosRec.x,
-					textbox.Position.y + textbox.TextPadding / 2 + textbox.FontSize,
-				},
-				1,
-				textbox.CursorColor,
-			)
 		}
 
 	} else if !textbox.Enabled && textbox.Visible {
