@@ -1,11 +1,10 @@
 package main
 
-import "core:fmt"
 import "vendor:raylib"
 import "widgets"
 
 main :: proc() {
-	raylib.InitWindow(800, 450, "raylib [core] example - basic window")
+	raylib.InitWindow(800, 450, "Widgets - Example")
 
 	SetWindowToPrimaryMonitor(true)
 

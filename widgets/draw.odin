@@ -1,8 +1,6 @@
 package widgets
 
 import "core:fmt"
-import "core:reflect"
-import "core:slice"
 import "core:strings"
 import "core:unicode/utf8"
 import "vendor:raylib"

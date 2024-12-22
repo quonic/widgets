@@ -1,9 +1,5 @@
 package widgets
 
-import "core:reflect"
-import "core:slice"
-import "core:strings"
-
 // AddWidget adds a widget to the widgets list
 AddTextBox :: proc(widget: ^TextBox) {
 	widget.SetText = proc(textbox: ^TextBox, text: string) {
@@ -21,7 +17,7 @@ RemoveWidget :: proc {
 
 // RemoveWidget removes a widget from the widgets list by index
 RemoveWidget_by_id :: proc(index: i32) {
-	for widget, i in textboxes {
+	for _, i in textboxes {
 		if i32(i) == index {
 			ordered_remove(&textboxes, i)
 			return

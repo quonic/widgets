@@ -40,8 +40,3 @@ GetPrimaryMonitor :: proc() -> i32 {
 	}
 	return -1
 }
-
-// SetWindowToCenterMonitor is a deprecated function
-SetWindowToCenterMonitor :: proc() {
-	SetWindowToPrimaryMonitor()
-}
