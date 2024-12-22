@@ -14,7 +14,7 @@ main :: proc() {
 		Visible                      = true,
 		Enabled                      = true,
 		Position                     = raylib.Rectangle{10, 10, 200, 20},
-		FontSize                     = 18,
+		FontSize                     = 20,
 		FontSpacing                  = 2,
 		FontColor                    = raylib.BLACK,
 		Font                         = raylib.GetFontDefault(),
