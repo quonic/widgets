@@ -14,6 +14,7 @@ DrawTextBoxes :: proc() {
 @(private)
 DrawTextBox :: proc(textbox: ^TextBox) {
 	if textbox.Enabled && textbox.Visible {
+		// Limit the drawing to the textbox
 		raylib.BeginScissorMode(
 			i32(textbox.Position.x),
 			i32(textbox.Position.y),
@@ -21,6 +22,7 @@ DrawTextBox :: proc(textbox: ^TextBox) {
 			i32(textbox.Position.height),
 		)
 		defer raylib.EndScissorMode()
+
 		// Check if the textbox is hovered
 		if raylib.CheckCollisionPointRec(raylib.GetMousePosition(), textbox.Position) {
 			textbox.Hovered = true
@@ -43,6 +45,7 @@ DrawTextBox :: proc(textbox: ^TextBox) {
 		// Check if the textbox is focused
 		if textbox.Focused {
 
+			// Handle the keyboard inputs
 			if raylib.IsKeyPressed(raylib.KeyboardKey.BACKSPACE) {
 				if len(textbox.Text) > 0 && textbox.TextCursor > 0 {
 					first: string = textbox.Text[:textbox.TextCursor - 1]
@@ -84,6 +87,8 @@ DrawTextBox :: proc(textbox: ^TextBox) {
 					)
 				}
 			}
+
+			// Handle the text input
 			pressed := raylib.GetCharPressed()
 			if pressed != 0 {
 				first: string = textbox.Text[:textbox.TextCursor]
@@ -94,7 +99,7 @@ DrawTextBox :: proc(textbox: ^TextBox) {
 				textbox.TextCursor += 1
 			}
 
-			// Draw the TextBox
+			// Draw the TextBox shape
 			raylib.DrawRectangleRec(textbox.Position, textbox.BackGroundColor)
 			raylib.DrawRectangleLinesEx(
 				textbox.Position,
@@ -114,6 +119,8 @@ DrawTextBox :: proc(textbox: ^TextBox) {
 				textbox.FontSpacing,
 				raylib.Color{0, 0, 0, 255},
 			)
+
+			// Get the cursor position relitive to the text
 			cursorPosRec := raylib.MeasureTextEx(
 				raylib.GetFontDefault(),
 				strings.clone_to_cstring(textbox.Text[:textbox.TextCursor]),
@@ -160,18 +167,14 @@ DrawTextBox :: proc(textbox: ^TextBox) {
 				textbox.FontSpacing,
 				raylib.Color{0, 0, 0, 255},
 			)
-
-			cursorPosRec := raylib.MeasureTextEx(
-				raylib.GetFontDefault(),
-				strings.clone_to_cstring(textbox.Text[:textbox.TextCursor]),
-				textbox.FontSize,
-				textbox.FontSpacing,
-			)
 		}
 
 	} else if !textbox.Enabled && textbox.Visible {
+		// Draw the TextBox shape
 		raylib.DrawRectangleRec(textbox.Position, raylib.GRAY)
 		raylib.DrawRectangleLinesEx(textbox.Position, textbox.BorderThickness, textbox.BorderColor)
+
+		// Draw the text
 		raylib.DrawTextEx(
 			raylib.GetFontDefault(),
 			strings.clone_to_cstring(textbox.Text),
