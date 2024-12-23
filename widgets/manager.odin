@@ -1,22 +1,22 @@
 package widgets
 
-// AddWidget adds a widget to the widgets list
-AddTextBox :: proc(widget: ^TextBox) {
-	widget.SetText = proc(textbox: ^TextBox, text: string) {
+// Adds a TextBox to the widget manager
+AddTextBox :: proc(textbox: ^TextBox) {
+	textbox.SetText = proc(textbox: ^TextBox, text: string) {
 		textbox.Text = text
 	}
 
-	append(&textboxes, widget^)
+	append(&textboxes, textbox^)
 }
 
-// RemoveWidget removes a widget from the widgets list
-RemoveWidget :: proc {
-	RemoveWidget_by_id,
-	RemoveWidget_by_name,
+// Removes a TextBox from the widget manager
+RemoveTextBox :: proc {
+	RemoveTextBox_by_index,
+	RemoveTextBox_by_name,
 }
 
-// RemoveWidget removes a widget from the widgets list by index
-RemoveWidget_by_id :: proc(index: i32) {
+// Removes a TextBox from the widget manager by index
+RemoveTextBox_by_index :: proc(index: i32) {
 	for _, i in textboxes {
 		if i32(i) == index {
 			ordered_remove(&textboxes, i)
@@ -25,13 +25,12 @@ RemoveWidget_by_id :: proc(index: i32) {
 	}
 }
 
-// RemoveWidget removes a widget from the widgets list by name
-RemoveWidget_by_name :: proc(name: string) -> ^TextBox {
-	for &widget, i in textboxes {
-		if widget.Name == name {
+// Removes a TextBox from the widget manager by name
+RemoveTextBox_by_name :: proc(name: string) {
+	for &textbox, i in textboxes {
+		if textbox.Name == name {
 			ordered_remove(&textboxes, i)
-			return &widget
+			break
 		}
 	}
-	return nil
 }
