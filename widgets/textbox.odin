@@ -52,8 +52,6 @@ TextBox :: struct {
 	TextSelectionBackgroundColor: raylib.Color,
 	// The text selection active
 	TextSelectionActive:          bool,
-	// Set text
-	SetText:                      proc(textbox: ^TextBox, text: string),
 	// Enter Looses Focus
 	EnterLoosesFocus:             bool,
 }

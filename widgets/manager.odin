@@ -2,10 +2,6 @@ package widgets
 
 // Adds a TextBox to the widget manager
 AddTextBox :: proc(textbox: ^TextBox) {
-	textbox.SetText = proc(textbox: ^TextBox, text: string) {
-		textbox.Text = text
-	}
-
 	append(&textboxes, textbox^)
 }
 
