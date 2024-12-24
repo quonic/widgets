@@ -4,12 +4,9 @@ import "vendor:raylib"
 
 textboxes: [dynamic]TextBox
 
-
 TextBox :: struct {
 	// The name of the widget for identification
 	Name:                         string,
-	// The type of the widget
-	// Type:      ^WidgetType,
 	// The position and size
 	Position:                     raylib.Rectangle,
 	// The background color
