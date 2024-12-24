@@ -1,5 +1,6 @@
 package main
 
+import "core:fmt"
 import "vendor:raylib"
 import "widgets"
 
@@ -11,7 +12,7 @@ main :: proc() {
 
 	// Define the TextBox
 	helloWorld := widgets.TextBox {
-		Name                         = "TextBox",
+		Name                         = "TextBox1",
 		Visible                      = true,
 		Enabled                      = true,
 		Position                     = raylib.Rectangle{10, 10, 200, 20},
@@ -29,7 +30,7 @@ main :: proc() {
 		TextSelectionBackgroundColor = raylib.GRAY,
 	}
 	anotherWorld := widgets.TextBox {
-		Name                         = "TextBox",
+		Name                         = "TextBox2",
 		Visible                      = true,
 		Enabled                      = true,
 		Position                     = raylib.Rectangle{10, 30, 200, 20},
@@ -48,8 +49,11 @@ main :: proc() {
 	}
 
 	// Add the TextBox to the widget manager
-	widgets.AddTextBox(&helloWorld)
-	widgets.AddTextBox(&anotherWorld)
+	// Old variables are not needed anymore
+	widgets.AddTextBox(helloWorld)
+	widgets.AddTextBox(anotherWorld)
+	// Or add multiple TextBoxes at once
+	// widgets.AddTextBoxes({helloWorld, anotherWorld})
 
 	for raylib.WindowShouldClose() == false {
 		raylib.BeginDrawing()
@@ -57,6 +61,16 @@ main :: proc() {
 
 		// Draw the TextBox
 		widgets.DrawTextBoxes()
+
+		// Get the text from the TextBox by name:
+		//   widgets.GetTextBox("TextBox1").Text
+		raylib.DrawText(
+			fmt.caprintf(widgets.GetTextBox("TextBox1").Text),
+			10,
+			60,
+			20,
+			raylib.BLACK,
+		)
 
 		raylib.EndDrawing()
 	}
