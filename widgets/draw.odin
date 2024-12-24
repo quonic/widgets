@@ -157,19 +157,58 @@ DrawTextBox :: proc(textbox: ^TextBox) {
 			} else {
 				cursor_x = 0
 			}
+
 			// Draw the cursor
-			raylib.DrawLineEx(
-				{
-					textbox.Position.x + textbox.TextPadding + cursor_x,
-					textbox.Position.y + textbox.TextPadding / 2,
-				},
-				{
-					textbox.Position.x + textbox.TextPadding + cursor_x,
-					textbox.Position.y + textbox.TextPadding / 2 + textbox.FontSize,
-				},
-				1,
-				textbox.CursorColor,
-			)
+			{
+				cursor_x = cursor_x + 1
+				// Draw top of the cusor line
+				raylib.DrawLineEx(
+					{
+						textbox.Position.x +
+						textbox.TextPadding +
+						cursor_x -
+						textbox.TextPadding -
+						1,
+						textbox.Position.y + textbox.TextPadding * 2,
+					},
+					{
+						textbox.Position.x + textbox.TextPadding + cursor_x + textbox.TextPadding,
+						textbox.Position.y + textbox.TextPadding * 2,
+					},
+					1,
+					textbox.CursorColor,
+				)
+				// Draw the vertical line
+				raylib.DrawLineEx(
+					{
+						textbox.Position.x + textbox.TextPadding + cursor_x,
+						textbox.Position.y + textbox.TextPadding / 2 + textbox.TextPadding,
+					},
+					{
+						textbox.Position.x + textbox.TextPadding + cursor_x,
+						textbox.Position.y + textbox.FontSize - textbox.TextPadding,
+					},
+					1,
+					textbox.CursorColor,
+				)
+				// Draw the bottom of the cursor line
+				raylib.DrawLineEx(
+					{
+						textbox.Position.x +
+						textbox.TextPadding +
+						cursor_x -
+						textbox.TextPadding -
+						1,
+						textbox.Position.y + textbox.FontSize - textbox.TextPadding,
+					},
+					{
+						textbox.Position.x + textbox.TextPadding + cursor_x + textbox.TextPadding,
+						textbox.Position.y + textbox.FontSize - textbox.TextPadding,
+					},
+					1,
+					textbox.CursorColor,
+				)
+			}
 		} else {
 			// Draw the TextBox
 			raylib.DrawRectangleRec(textbox.Position, textbox.BackGroundColor)
