@@ -1,8 +1,15 @@
 package widgets
 
 // Adds a TextBox to the widget manager
-AddTextBox :: proc(textbox: ^TextBox) {
-	append(&textboxes, textbox^)
+AddTextBox :: proc(textbox: TextBox) {
+	append(&textboxes, textbox)
+}
+
+// Adds multiple TextBoxes to the widget manager
+AddTextBoxes :: proc(textboxs: []TextBox) {
+	for &textbox in textboxes {
+		append(&textboxes, textbox)
+	}
 }
 
 // Removes a TextBox from the widget manager
@@ -29,4 +36,27 @@ RemoveTextBox_by_name :: proc(name: string) {
 			break
 		}
 	}
+}
+
+// Get the TextBox from the widget manager
+// This returns a pointer to the TextBox
+GetTextBox :: proc {
+	GetTextBox_by_index,
+	GetTextBox_by_name,
+}
+
+GetTextBox_by_index :: proc(id: i32) -> ^TextBox {
+	for &textbox, i in textboxes {
+		return &textboxes[i]
+	}
+	return nil
+}
+
+GetTextBox_by_name :: proc(name: string) -> ^TextBox {
+	for &textbox in textboxes {
+		if textbox.Name == name {
+			return &textbox
+		}
+	}
+	return nil
 }
