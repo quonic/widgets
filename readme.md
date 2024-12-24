@@ -26,6 +26,7 @@ import "widgets"
 main :: proc() {
     raylib.InitWindow(800, 450, "Widgets - Example")
 
+    // Move window to the center of the primary monitor. See monitor.odin
     SetWindowToPrimaryMonitor(true)
 
     // Define the TextBox
