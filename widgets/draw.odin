@@ -33,6 +33,8 @@ DrawTextField :: proc(textfield: ^TextField) {
 		if raylib.IsMouseButtonPressed(raylib.MouseButton.LEFT) {
 			if raylib.CheckCollisionPointRec(raylib.GetMousePosition(), textfield.Position) {
 				textfield.Focused = true
+				textfield.TextSelectionStart = -1
+				textfield.TextSelectionEnd = -1
 
 				// Get the cursor position relitive to the text
 				x := raylib.GetMousePosition().x - textfield.Position.x - textfield.TextPadding
@@ -63,7 +65,50 @@ DrawTextField :: proc(textfield: ^TextField) {
 				}
 			} else {
 				textfield.Focused = false
+				textfield.TextSelectionStart = -1
+				textfield.TextSelectionEnd = -1
 			}
+		} else if raylib.IsMouseButtonDown(raylib.MouseButton.LEFT) {
+			if raylib.CheckCollisionPointRec(raylib.GetMousePosition(), textfield.Position) {
+				textfield.Focused = true
+
+				textfield.TextSelectionActive = true
+				// Get the cursor position relitive to the text
+				x := raylib.GetMousePosition().x - textfield.Position.x - textfield.TextPadding
+
+				// Find the nearest x point inbetween characters
+				for _, i in textfield.Text {
+					after_x: f32 = textfield.Position.x - textfield.TextPadding
+
+					cur_x :=
+						raylib.MeasureTextEx(textfield.Font, strings.clone_to_cstring(textfield.Text[:i]), textfield.FontSize, textfield.FontSpacing).x
+
+					if i < len(textfield.Text) {
+						after_x =
+							raylib.MeasureTextEx(textfield.Font, strings.clone_to_cstring(textfield.Text[:i + 1]), textfield.FontSize, textfield.FontSpacing).x
+					}
+
+					// Figure out the nearest point between the two characters
+					if x > cur_x && x < after_x {
+						if x - cur_x < after_x - x {
+							textfield.TextCursor = i32(i)
+							break
+						} else {
+							textfield.TextCursor = i32(i) + 1
+							break
+						}
+					}
+					if textfield.TextSelectionStart == -1 {
+						textfield.TextSelectionStart = textfield.TextCursor
+					} else {
+						textfield.TextSelectionEnd = textfield.TextCursor
+					}
+				}
+			} else {
+				textfield.Focused = false
+			}
+		} else if raylib.IsMouseButtonReleased(raylib.MouseButton.LEFT) {
+			textfield.TextSelectionActive = false
 		}
 
 		// Check if the textfield is focused
@@ -71,7 +116,14 @@ DrawTextField :: proc(textfield: ^TextField) {
 
 			// Handle the keyboard inputs
 			if raylib.IsKeyPressed(raylib.KeyboardKey.BACKSPACE) {
-				if len(textfield.Text) > 0 && textfield.TextCursor > 0 {
+				if textfield.TextSelectionStart != -1 && textfield.TextSelectionEnd != -1 {
+					first: string = textfield.Text[:textfield.TextSelectionStart]
+					second: string = textfield.Text[textfield.TextSelectionEnd:]
+					textfield.Text = strings.concatenate({first, second})
+					textfield.TextCursor = textfield.TextSelectionStart
+					textfield.TextSelectionStart = -1
+					textfield.TextSelectionEnd = -1
+				} else if len(textfield.Text) > 0 && textfield.TextCursor > 0 {
 					first: string = textfield.Text[:textfield.TextCursor - 1]
 					second: string = textfield.Text[textfield.TextCursor:]
 					textfield.Text = strings.concatenate({first, second})
@@ -83,27 +135,55 @@ DrawTextField :: proc(textfield: ^TextField) {
 			if raylib.IsKeyPressed(raylib.KeyboardKey.ENTER) && textfield.EnterLoosesFocus {
 				textfield.Focused = false
 			}
+
+			// Escape
 			if raylib.IsKeyPressed(raylib.KeyboardKey.ESCAPE) {
 				textfield.Focused = false
 			}
+
+			// Left
 			if raylib.IsKeyPressed(raylib.KeyboardKey.LEFT) {
+				textfield.TextSelectionStart = -1
+				textfield.TextSelectionEnd = -1
 				if textfield.TextCursor > 0 {
 					textfield.TextCursor -= 1
 				}
 			}
+
+			// Right
 			if raylib.IsKeyPressed(raylib.KeyboardKey.RIGHT) {
+				textfield.TextSelectionStart = -1
+				textfield.TextSelectionEnd = -1
 				if textfield.TextCursor < i32(len(textfield.Text)) {
 					textfield.TextCursor += 1
 				}
 			}
+
+			// Home
 			if raylib.IsKeyPressed(raylib.KeyboardKey.HOME) {
 				textfield.TextCursor = 0
+				textfield.TextSelectionStart = -1
+				textfield.TextSelectionEnd = -1
 			}
+
+			// End
 			if raylib.IsKeyPressed(raylib.KeyboardKey.END) {
 				textfield.TextCursor = i32(len(textfield.Text))
+				textfield.TextSelectionStart = -1
+				textfield.TextSelectionEnd = -1
 			}
+
+			// Delete
 			if raylib.IsKeyPressed(raylib.KeyboardKey.DELETE) {
-				if textfield.TextCursor < i32(len(textfield.Text)) {
+				// If we have a selection, delete the selection
+				if textfield.TextSelectionStart != -1 && textfield.TextSelectionEnd != -1 {
+					first: string = textfield.Text[:textfield.TextSelectionStart]
+					second: string = textfield.Text[textfield.TextSelectionEnd:]
+					textfield.Text = strings.concatenate({first, second})
+					textfield.TextCursor = textfield.TextSelectionStart
+					textfield.TextSelectionStart = -1
+					textfield.TextSelectionEnd = -1
+				} else if textfield.TextCursor < i32(len(textfield.Text)) {
 					textfield.Text = fmt.aprintf(
 						"%s%s",
 						textfield.Text[:textfield.TextCursor],
@@ -112,15 +192,74 @@ DrawTextField :: proc(textfield: ^TextField) {
 				}
 			}
 
+			// Select All
+			if raylib.IsKeyDown(raylib.KeyboardKey.LEFT_CONTROL) &&
+			   raylib.IsKeyPressed(raylib.KeyboardKey.A) {
+				textfield.TextSelectionStart = 0
+				textfield.TextSelectionEnd = i32(len(textfield.Text))
+			}
+
+			// Copy
+			if textfield.TextSelectionStart != -1 && textfield.TextSelectionEnd != -1 {
+				if raylib.IsKeyDown(raylib.KeyboardKey.LEFT_CONTROL) &&
+				   raylib.IsKeyPressed(raylib.KeyboardKey.C) {
+					if textfield.TextSelectionStart != -1 && textfield.TextSelectionEnd != -1 {
+						if textfield.TextSelectionStart > textfield.TextSelectionEnd {
+							textfield.TextSelectionStart, textfield.TextSelectionEnd =
+								textfield.TextSelectionEnd, textfield.TextSelectionStart
+						}
+						raylib.SetClipboardText(
+							strings.clone_to_cstring(
+								textfield.Text[textfield.TextSelectionStart:textfield.TextSelectionEnd],
+							),
+						)
+					}
+				}
+			}
+			// Paste
+			if raylib.IsKeyDown(raylib.KeyboardKey.LEFT_CONTROL) &&
+			   raylib.IsKeyPressed(raylib.KeyboardKey.V) {
+				if textfield.TextSelectionStart != -1 && textfield.TextSelectionEnd != -1 {
+					first: string = textfield.Text[:textfield.TextSelectionStart]
+					second: string = textfield.Text[textfield.TextSelectionEnd:]
+					textfield.Text = strings.concatenate(
+						{first, string(raylib.GetClipboardText()), second},
+					)
+					textfield.TextCursor =
+						textfield.TextSelectionStart + i32(len(raylib.GetClipboardText()))
+					textfield.TextSelectionStart = -1
+					textfield.TextSelectionEnd = -1
+				} else {
+					first: string = textfield.Text[:textfield.TextCursor]
+					second: string = textfield.Text[textfield.TextCursor:]
+					textfield.Text = strings.concatenate(
+						{first, string(raylib.GetClipboardText()), second},
+					)
+					textfield.TextCursor += i32(len(raylib.GetClipboardText()))
+				}
+			}
+
 			// Handle the text input
 			pressed := raylib.GetCharPressed()
 			if pressed != 0 {
-				first: string = textfield.Text[:textfield.TextCursor]
-				second: string = textfield.Text[textfield.TextCursor:]
-				b, w := utf8.encode_rune(pressed)
-				char := string(b[:w])
-				textfield.Text = strings.concatenate({first, char, second})
-				textfield.TextCursor += 1
+				// If we have a selection, replace the selection with the new character
+				if textfield.TextSelectionStart != -1 && textfield.TextSelectionEnd != -1 {
+					first: string = textfield.Text[:textfield.TextSelectionStart]
+					second: string = textfield.Text[textfield.TextSelectionEnd:]
+					b, w := utf8.encode_rune(pressed)
+					char := string(b[:w])
+					textfield.Text = strings.concatenate({first, char, second})
+					textfield.TextCursor = textfield.TextSelectionStart + 1
+					textfield.TextSelectionStart = -1
+					textfield.TextSelectionEnd = -1
+				} else {
+					first: string = textfield.Text[:textfield.TextCursor]
+					second: string = textfield.Text[textfield.TextCursor:]
+					b, w := utf8.encode_rune(pressed)
+					char := string(b[:w])
+					textfield.Text = strings.concatenate({first, char, second})
+					textfield.TextCursor += 1
+				}
 			}
 
 			// Draw the TextField shape
@@ -131,18 +270,51 @@ DrawTextField :: proc(textfield: ^TextField) {
 				textfield.BorderColor,
 			)
 
-			// Draw the text
-			raylib.DrawTextEx(
-				raylib.GetFontDefault(),
-				strings.clone_to_cstring(textfield.Text),
-				{
-					textfield.Position.x + textfield.TextPadding,
-					textfield.Position.y + textfield.TextPadding / 2,
-				},
-				textfield.FontSize,
-				textfield.FontSpacing,
-				raylib.Color{0, 0, 0, 255},
-			)
+			// When we have a selection, draw the selection
+			if textfield.TextSelectionStart != -1 && textfield.TextSelectionEnd != -1 {
+				// Draw the text selection
+				start_x :=
+					raylib.MeasureTextEx(textfield.Font, strings.clone_to_cstring(textfield.Text[:textfield.TextSelectionStart]), textfield.FontSize, textfield.FontSpacing).x
+				end_x :=
+					raylib.MeasureTextEx(textfield.Font, strings.clone_to_cstring(textfield.Text[:textfield.TextSelectionEnd]), textfield.FontSize, textfield.FontSpacing).x
+
+				if start_x > end_x {
+					start_x, end_x = end_x, start_x
+				}
+				raylib.DrawRectangleRec(
+					{
+						textfield.Position.x + textfield.TextPadding + start_x,
+						textfield.Position.y + textfield.TextPadding / 2,
+						end_x - start_x,
+						textfield.FontSize,
+					},
+					textfield.TextSelectionBackgroundColor,
+				)
+				raylib.DrawTextEx(
+					raylib.GetFontDefault(),
+					strings.clone_to_cstring(textfield.Text),
+					{
+						textfield.Position.x + textfield.TextPadding,
+						textfield.Position.y + textfield.TextPadding / 2,
+					},
+					textfield.FontSize,
+					textfield.FontSpacing,
+					textfield.FontColor,
+				)
+			} else {
+				// Draw the text
+				raylib.DrawTextEx(
+					raylib.GetFontDefault(),
+					strings.clone_to_cstring(textfield.Text),
+					{
+						textfield.Position.x + textfield.TextPadding,
+						textfield.Position.y + textfield.TextPadding / 2,
+					},
+					textfield.FontSize,
+					textfield.FontSpacing,
+					textfield.FontColor,
+				)
+			}
 
 			// Set our cursor position on the screen
 			cursor_x: f32
