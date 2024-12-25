@@ -12,6 +12,55 @@ DrawTextFieldes :: proc() {
 }
 
 @(private)
+CopySelection :: proc(textfield: ^TextField) {
+	// Copy
+	if textfield.TextSelectionStart != -1 && textfield.TextSelectionEnd != -1 {
+		if textfield.TextSelectionStart > textfield.TextSelectionEnd {
+			textfield.TextSelectionStart, textfield.TextSelectionEnd =
+				textfield.TextSelectionEnd, textfield.TextSelectionStart
+		}
+		raylib.SetClipboardText(
+			strings.clone_to_cstring(
+				textfield.Text[textfield.TextSelectionStart:textfield.TextSelectionEnd],
+			),
+		)
+	}
+}
+
+@(private)
+CutSelection :: proc(textfield: ^TextField) {
+	// Cut
+	first: string = textfield.Text[:textfield.TextSelectionStart]
+	second: string = textfield.Text[textfield.TextSelectionEnd:]
+	raylib.SetClipboardText(
+		strings.clone_to_cstring(
+			textfield.Text[textfield.TextSelectionStart:textfield.TextSelectionEnd],
+		),
+	)
+	textfield.Text = strings.concatenate({first, second})
+	textfield.TextCursor = textfield.TextSelectionStart
+	textfield.TextSelectionStart = -1
+	textfield.TextSelectionEnd = -1
+}
+
+@(private)
+PasteSelection :: proc(textfield: ^TextField) {
+	if textfield.TextSelectionStart != -1 && textfield.TextSelectionEnd != -1 {
+		first: string = textfield.Text[:textfield.TextSelectionStart]
+		second: string = textfield.Text[textfield.TextSelectionEnd:]
+		textfield.Text = strings.concatenate({first, string(raylib.GetClipboardText()), second})
+		textfield.TextCursor = textfield.TextSelectionStart + i32(len(raylib.GetClipboardText()))
+		textfield.TextSelectionStart = -1
+		textfield.TextSelectionEnd = -1
+	} else {
+		first: string = textfield.Text[:textfield.TextCursor]
+		second: string = textfield.Text[textfield.TextCursor:]
+		textfield.Text = strings.concatenate({first, string(raylib.GetClipboardText()), second})
+		textfield.TextCursor += i32(len(raylib.GetClipboardText()))
+	}
+}
+
+@(private)
 DrawTextField :: proc(textfield: ^TextField) {
 	if textfield.Enabled && textfield.Visible {
 		// Limit the drawing to the textfield
@@ -199,59 +248,23 @@ DrawTextField :: proc(textfield: ^TextField) {
 				textfield.TextSelectionEnd = i32(len(textfield.Text))
 			}
 
-			// Copy
+			// Copy or Cut
 			if textfield.TextSelectionStart != -1 && textfield.TextSelectionEnd != -1 {
 				if raylib.IsKeyDown(raylib.KeyboardKey.LEFT_CONTROL) {
 					if raylib.IsKeyPressed(raylib.KeyboardKey.C) {
 						// Copy
-						if textfield.TextSelectionStart != -1 && textfield.TextSelectionEnd != -1 {
-							if textfield.TextSelectionStart > textfield.TextSelectionEnd {
-								textfield.TextSelectionStart, textfield.TextSelectionEnd =
-									textfield.TextSelectionEnd, textfield.TextSelectionStart
-							}
-							raylib.SetClipboardText(
-								strings.clone_to_cstring(
-									textfield.Text[textfield.TextSelectionStart:textfield.TextSelectionEnd],
-								),
-							)
-						}
+						CopySelection(textfield)
 					} else if raylib.IsKeyPressed(raylib.KeyboardKey.X) {
 						// Cut
-						first: string = textfield.Text[:textfield.TextSelectionStart]
-						second: string = textfield.Text[textfield.TextSelectionEnd:]
-						raylib.SetClipboardText(
-							strings.clone_to_cstring(
-								textfield.Text[textfield.TextSelectionStart:textfield.TextSelectionEnd],
-							),
-						)
-						textfield.Text = strings.concatenate({first, second})
-						textfield.TextCursor = textfield.TextSelectionStart
-						textfield.TextSelectionStart = -1
-						textfield.TextSelectionEnd = -1
+						CutSelection(textfield)
 					}
 				}
 			}
 			// Paste
 			if raylib.IsKeyDown(raylib.KeyboardKey.LEFT_CONTROL) &&
 			   raylib.IsKeyPressed(raylib.KeyboardKey.V) {
-				if textfield.TextSelectionStart != -1 && textfield.TextSelectionEnd != -1 {
-					first: string = textfield.Text[:textfield.TextSelectionStart]
-					second: string = textfield.Text[textfield.TextSelectionEnd:]
-					textfield.Text = strings.concatenate(
-						{first, string(raylib.GetClipboardText()), second},
-					)
-					textfield.TextCursor =
-						textfield.TextSelectionStart + i32(len(raylib.GetClipboardText()))
-					textfield.TextSelectionStart = -1
-					textfield.TextSelectionEnd = -1
-				} else {
-					first: string = textfield.Text[:textfield.TextCursor]
-					second: string = textfield.Text[textfield.TextCursor:]
-					textfield.Text = strings.concatenate(
-						{first, string(raylib.GetClipboardText()), second},
-					)
-					textfield.TextCursor += i32(len(raylib.GetClipboardText()))
-				}
+				// Paste
+				PasteSelection(textfield)
 			}
 
 			// Handle the text input
