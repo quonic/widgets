@@ -259,10 +259,28 @@ DrawTextField :: proc(textfield: ^TextField) {
 						CutSelection(textfield)
 					}
 				}
+				if raylib.IsKeyDown(raylib.KeyboardKey.RIGHT_CONTROL) {
+					if raylib.IsKeyPressed(raylib.KeyboardKey.INSERT) {
+						// Copy
+						CopySelection(textfield)
+					}
+				}
+				if raylib.IsKeyDown(raylib.KeyboardKey.RIGHT_SHIFT) {
+					if raylib.IsKeyPressed(raylib.KeyboardKey.DELETE) {
+						// Cut
+						CutSelection(textfield)
+					}
+				}
 			}
+
 			// Paste
 			if raylib.IsKeyDown(raylib.KeyboardKey.LEFT_CONTROL) &&
 			   raylib.IsKeyPressed(raylib.KeyboardKey.V) {
+				// Paste
+				PasteSelection(textfield)
+			}
+			if raylib.IsKeyDown(raylib.KeyboardKey.RIGHT_SHIFT) &&
+			   raylib.IsKeyPressed(raylib.KeyboardKey.INSERT) {
 				// Paste
 				PasteSelection(textfield)
 			}
