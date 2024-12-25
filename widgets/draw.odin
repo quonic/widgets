@@ -5,109 +5,109 @@ import "core:strings"
 import "core:unicode/utf8"
 import "vendor:raylib"
 
-DrawTextBoxes :: proc() {
-	for &textbox in textboxes {
-		DrawTextBox(&textbox)
+DrawTextFieldes :: proc() {
+	for &textfield in textfieldes {
+		DrawTextField(&textfield)
 	}
 }
 
 @(private)
-DrawTextBox :: proc(textbox: ^TextBox) {
-	if textbox.Enabled && textbox.Visible {
-		// Limit the drawing to the textbox
+DrawTextField :: proc(textfield: ^TextField) {
+	if textfield.Enabled && textfield.Visible {
+		// Limit the drawing to the textfield
 		raylib.BeginScissorMode(
-			i32(textbox.Position.x),
-			i32(textbox.Position.y),
-			i32(textbox.Position.width),
-			i32(textbox.Position.height),
+			i32(textfield.Position.x),
+			i32(textfield.Position.y),
+			i32(textfield.Position.width),
+			i32(textfield.Position.height),
 		)
 		defer raylib.EndScissorMode()
 
-		// Check if the textbox is hovered
-		if raylib.CheckCollisionPointRec(raylib.GetMousePosition(), textbox.Position) {
-			textbox.Hovered = true
+		// Check if the textfield is hovered
+		if raylib.CheckCollisionPointRec(raylib.GetMousePosition(), textfield.Position) {
+			textfield.Hovered = true
 		} else {
-			textbox.Hovered = false
+			textfield.Hovered = false
 		}
-		// Check if the textbox is focused
+		// Check if the textfield is focused
 		if raylib.IsMouseButtonPressed(raylib.MouseButton.LEFT) {
-			if raylib.CheckCollisionPointRec(raylib.GetMousePosition(), textbox.Position) {
-				textbox.Focused = true
+			if raylib.CheckCollisionPointRec(raylib.GetMousePosition(), textfield.Position) {
+				textfield.Focused = true
 
 				// Get the cursor position relitive to the text
-				x := raylib.GetMousePosition().x - textbox.Position.x - textbox.TextPadding
+				x := raylib.GetMousePosition().x - textfield.Position.x - textfield.TextPadding
 
 				// Find the nearest x point inbetween characters
-				for _, i in textbox.Text {
-					after_x: f32 = textbox.Position.x - textbox.TextPadding
+				for _, i in textfield.Text {
+					after_x: f32 = textfield.Position.x - textfield.TextPadding
 
 					cur_x :=
-						raylib.MeasureTextEx(textbox.Font, strings.clone_to_cstring(textbox.Text[:i]), textbox.FontSize, textbox.FontSpacing).x
+						raylib.MeasureTextEx(textfield.Font, strings.clone_to_cstring(textfield.Text[:i]), textfield.FontSize, textfield.FontSpacing).x
 
-					if i < len(textbox.Text) {
+					if i < len(textfield.Text) {
 						after_x =
-							raylib.MeasureTextEx(textbox.Font, strings.clone_to_cstring(textbox.Text[:i + 1]), textbox.FontSize, textbox.FontSpacing).x
+							raylib.MeasureTextEx(textfield.Font, strings.clone_to_cstring(textfield.Text[:i + 1]), textfield.FontSize, textfield.FontSpacing).x
 					}
 
 					// Figure out the nearest point between the two characters
 					if x > cur_x && x < after_x {
 						if x - cur_x < after_x - x {
-							textbox.TextCursor = i32(i)
+							textfield.TextCursor = i32(i)
 							break
 						} else {
-							textbox.TextCursor = i32(i) + 1
+							textfield.TextCursor = i32(i) + 1
 							break
 						}
 					}
 
 				}
 			} else {
-				textbox.Focused = false
+				textfield.Focused = false
 			}
 		}
 
-		// Check if the textbox is focused
-		if textbox.Focused {
+		// Check if the textfield is focused
+		if textfield.Focused {
 
 			// Handle the keyboard inputs
 			if raylib.IsKeyPressed(raylib.KeyboardKey.BACKSPACE) {
-				if len(textbox.Text) > 0 && textbox.TextCursor > 0 {
-					first: string = textbox.Text[:textbox.TextCursor - 1]
-					second: string = textbox.Text[textbox.TextCursor:]
-					textbox.Text = strings.concatenate({first, second})
-					if textbox.TextCursor > 0 {
-						textbox.TextCursor -= 1
+				if len(textfield.Text) > 0 && textfield.TextCursor > 0 {
+					first: string = textfield.Text[:textfield.TextCursor - 1]
+					second: string = textfield.Text[textfield.TextCursor:]
+					textfield.Text = strings.concatenate({first, second})
+					if textfield.TextCursor > 0 {
+						textfield.TextCursor -= 1
 					}
 				}
 			}
-			if raylib.IsKeyPressed(raylib.KeyboardKey.ENTER) && textbox.EnterLoosesFocus {
-				textbox.Focused = false
+			if raylib.IsKeyPressed(raylib.KeyboardKey.ENTER) && textfield.EnterLoosesFocus {
+				textfield.Focused = false
 			}
 			if raylib.IsKeyPressed(raylib.KeyboardKey.ESCAPE) {
-				textbox.Focused = false
+				textfield.Focused = false
 			}
 			if raylib.IsKeyPressed(raylib.KeyboardKey.LEFT) {
-				if textbox.TextCursor > 0 {
-					textbox.TextCursor -= 1
+				if textfield.TextCursor > 0 {
+					textfield.TextCursor -= 1
 				}
 			}
 			if raylib.IsKeyPressed(raylib.KeyboardKey.RIGHT) {
-				if textbox.TextCursor < i32(len(textbox.Text)) {
-					textbox.TextCursor += 1
+				if textfield.TextCursor < i32(len(textfield.Text)) {
+					textfield.TextCursor += 1
 				}
 			}
 			if raylib.IsKeyPressed(raylib.KeyboardKey.HOME) {
-				textbox.TextCursor = 0
+				textfield.TextCursor = 0
 			}
 			if raylib.IsKeyPressed(raylib.KeyboardKey.END) {
-				textbox.TextCursor = i32(len(textbox.Text))
+				textfield.TextCursor = i32(len(textfield.Text))
 			}
 			if raylib.IsKeyPressed(raylib.KeyboardKey.DELETE) {
-				if textbox.TextCursor < i32(len(textbox.Text)) {
-					textbox.Text = fmt.aprintf(
+				if textfield.TextCursor < i32(len(textfield.Text)) {
+					textfield.Text = fmt.aprintf(
 						"%s%s",
-						textbox.Text[:textbox.TextCursor],
-						textbox.Text[textbox.TextCursor + 1:],
+						textfield.Text[:textfield.TextCursor],
+						textfield.Text[textfield.TextCursor + 1:],
 					)
 				}
 			}
@@ -115,45 +115,45 @@ DrawTextBox :: proc(textbox: ^TextBox) {
 			// Handle the text input
 			pressed := raylib.GetCharPressed()
 			if pressed != 0 {
-				first: string = textbox.Text[:textbox.TextCursor]
-				second: string = textbox.Text[textbox.TextCursor:]
+				first: string = textfield.Text[:textfield.TextCursor]
+				second: string = textfield.Text[textfield.TextCursor:]
 				b, w := utf8.encode_rune(pressed)
 				char := string(b[:w])
-				textbox.Text = strings.concatenate({first, char, second})
-				textbox.TextCursor += 1
+				textfield.Text = strings.concatenate({first, char, second})
+				textfield.TextCursor += 1
 			}
 
-			// Draw the TextBox shape
-			raylib.DrawRectangleRec(textbox.Position, textbox.BackGroundColor)
+			// Draw the TextField shape
+			raylib.DrawRectangleRec(textfield.Position, textfield.BackGroundColor)
 			raylib.DrawRectangleLinesEx(
-				textbox.Position,
-				textbox.BorderThickness,
-				textbox.BorderColor,
+				textfield.Position,
+				textfield.BorderThickness,
+				textfield.BorderColor,
 			)
 
 			// Draw the text
 			raylib.DrawTextEx(
 				raylib.GetFontDefault(),
-				strings.clone_to_cstring(textbox.Text),
+				strings.clone_to_cstring(textfield.Text),
 				{
-					textbox.Position.x + textbox.TextPadding,
-					textbox.Position.y + textbox.TextPadding / 2,
+					textfield.Position.x + textfield.TextPadding,
+					textfield.Position.y + textfield.TextPadding / 2,
 				},
-				textbox.FontSize,
-				textbox.FontSpacing,
+				textfield.FontSize,
+				textfield.FontSpacing,
 				raylib.Color{0, 0, 0, 255},
 			)
 
 			// Set our cursor position on the screen
 			cursor_x: f32
-			if textbox.TextCursor < i32(len(textbox.Text)) {
+			if textfield.TextCursor < i32(len(textfield.Text)) {
 				// Get the cursor position
 				cursor_x =
-					raylib.MeasureTextEx(textbox.Font, strings.clone_to_cstring(textbox.Text[:textbox.TextCursor]), textbox.FontSize, textbox.FontSpacing).x
-			} else if textbox.TextCursor >= i32(len(textbox.Text)) {
+					raylib.MeasureTextEx(textfield.Font, strings.clone_to_cstring(textfield.Text[:textfield.TextCursor]), textfield.FontSize, textfield.FontSpacing).x
+			} else if textfield.TextCursor >= i32(len(textfield.Text)) {
 				// Get the cursor position
 				cursor_x =
-					raylib.MeasureTextEx(textbox.Font, strings.clone_to_cstring(textbox.Text), textbox.FontSize, textbox.FontSpacing).x
+					raylib.MeasureTextEx(textfield.Font, strings.clone_to_cstring(textfield.Text), textfield.FontSize, textfield.FontSpacing).x
 			} else {
 				cursor_x = 0
 			}
@@ -164,89 +164,99 @@ DrawTextBox :: proc(textbox: ^TextBox) {
 				// Draw top of the cusor line
 				raylib.DrawLineEx(
 					{
-						textbox.Position.x +
-						textbox.TextPadding +
+						textfield.Position.x +
+						textfield.TextPadding +
 						cursor_x -
-						textbox.TextPadding -
+						textfield.TextPadding -
 						1,
-						textbox.Position.y + textbox.TextPadding * 2,
+						textfield.Position.y + textfield.TextPadding * 2,
 					},
 					{
-						textbox.Position.x + textbox.TextPadding + cursor_x + textbox.TextPadding,
-						textbox.Position.y + textbox.TextPadding * 2,
+						textfield.Position.x +
+						textfield.TextPadding +
+						cursor_x +
+						textfield.TextPadding,
+						textfield.Position.y + textfield.TextPadding * 2,
 					},
 					1,
-					textbox.CursorColor,
+					textfield.CursorColor,
 				)
 				// Draw the vertical line
 				raylib.DrawLineEx(
 					{
-						textbox.Position.x + textbox.TextPadding + cursor_x,
-						textbox.Position.y + textbox.TextPadding / 2 + textbox.TextPadding,
+						textfield.Position.x + textfield.TextPadding + cursor_x,
+						textfield.Position.y + textfield.TextPadding / 2 + textfield.TextPadding,
 					},
 					{
-						textbox.Position.x + textbox.TextPadding + cursor_x,
-						textbox.Position.y + textbox.FontSize - textbox.TextPadding,
+						textfield.Position.x + textfield.TextPadding + cursor_x,
+						textfield.Position.y + textfield.FontSize - textfield.TextPadding,
 					},
 					1,
-					textbox.CursorColor,
+					textfield.CursorColor,
 				)
 				// Draw the bottom of the cursor line
 				raylib.DrawLineEx(
 					{
-						textbox.Position.x +
-						textbox.TextPadding +
+						textfield.Position.x +
+						textfield.TextPadding +
 						cursor_x -
-						textbox.TextPadding -
+						textfield.TextPadding -
 						1,
-						textbox.Position.y + textbox.FontSize - textbox.TextPadding,
+						textfield.Position.y + textfield.FontSize - textfield.TextPadding,
 					},
 					{
-						textbox.Position.x + textbox.TextPadding + cursor_x + textbox.TextPadding,
-						textbox.Position.y + textbox.FontSize - textbox.TextPadding,
+						textfield.Position.x +
+						textfield.TextPadding +
+						cursor_x +
+						textfield.TextPadding,
+						textfield.Position.y + textfield.FontSize - textfield.TextPadding,
 					},
 					1,
-					textbox.CursorColor,
+					textfield.CursorColor,
 				)
 			}
 		} else {
-			// Draw the TextBox
-			raylib.DrawRectangleRec(textbox.Position, textbox.BackGroundColor)
+			// Draw the TextField
+			raylib.DrawRectangleRec(textfield.Position, textfield.BackGroundColor)
 			raylib.DrawRectangleLinesEx(
-				textbox.Position,
-				textbox.BorderThickness,
-				textbox.BorderColor,
+				textfield.Position,
+				textfield.BorderThickness,
+				textfield.BorderColor,
 			)
 
 			// Draw the text
 			raylib.DrawTextEx(
 				raylib.GetFontDefault(),
-				strings.clone_to_cstring(textbox.Text),
+				strings.clone_to_cstring(textfield.Text),
 				{
-					textbox.Position.x + textbox.TextPadding,
-					textbox.Position.y + textbox.TextPadding / 2,
+					textfield.Position.x + textfield.TextPadding,
+					textfield.Position.y + textfield.TextPadding / 2,
 				},
-				textbox.FontSize,
-				textbox.FontSpacing,
+				textfield.FontSize,
+				textfield.FontSpacing,
 				raylib.Color{0, 0, 0, 255},
 			)
 		}
 
-	} else if !textbox.Enabled && textbox.Visible {
-		// Draw the TextBox shape
-		raylib.DrawRectangleRec(textbox.Position, raylib.GRAY)
-		raylib.DrawRectangleLinesEx(textbox.Position, textbox.BorderThickness, textbox.BorderColor)
+	} else if !textfield.Enabled && textfield.Visible {
+		// Draw the TextField shape
+		raylib.DrawRectangleRec(textfield.Position, raylib.GRAY)
+		raylib.DrawRectangleLinesEx(
+			textfield.Position,
+			textfield.BorderThickness,
+			textfield.BorderColor,
+		)
 
 		// Draw the text
 		raylib.DrawTextEx(
 			raylib.GetFontDefault(),
-			strings.clone_to_cstring(textbox.Text),
+			strings.clone_to_cstring(textfield.Text),
 			{
-				textbox.Position.x + textbox.TextPadding,
-				textbox.Position.y + textbox.TextPadding / 2,
+				textfield.Position.x + textfield.TextPadding,
+				textfield.Position.y + textfield.TextPadding / 2,
 			},
-			textbox.FontSize,
-			textbox.FontSpacing,
+			textfield.FontSize,
+			textfield.FontSpacing,
 			raylib.Color{0, 0, 0, 255},
 		)
 	}

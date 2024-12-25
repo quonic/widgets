@@ -6,13 +6,13 @@ Custom widgets written in Odin for raylib.
 
 ## Available Widgets
 
-* TextBox - You can have more than one on screen!
+* TextField - You can have more than one on screen!
 
 ## TODO
 
 * [ ] Figure out other widgets to make
-* [ ] Add text selection to TextBox
-* [ ] Add copy and paste functionality to TextBox
+* [ ] Add text selection to TextField
+* [ ] Add copy and paste functionality to TextField
 
 ## Example
 
@@ -29,9 +29,9 @@ main :: proc() {
     // Move window to the center of the primary monitor. See monitor.odin
     SetWindowToPrimaryMonitor(true)
 
-    // Define the TextBox
-    helloWorld := widgets.TextBox {
-        Name                         = "TextBox",
+    // Define the TextField
+    helloWorld := widgets.TextField {
+        Name                         = "TextField",
         Visible                      = true,
         Enabled                      = true,
         Position                     = raylib.Rectangle{10, 10, 200, 20},
@@ -47,15 +47,15 @@ main :: proc() {
         TextPadding                  = 2.0,
     }
 
-    // Add the TextBox to the widget manager
-    widgets.AddTextBox(&helloWorld)
+    // Add the TextField to the widget manager
+    widgets.AddTextField(&helloWorld)
 
     for raylib.WindowShouldClose() == false {
         raylib.BeginDrawing()
         raylib.ClearBackground(raylib.GRAY)
 
-        // Draw the TextBox
-        widgets.DrawTextBoxes()
+        // Draw the TextField
+        widgets.DrawTextFieldes()
 
         raylib.EndDrawing()
     }

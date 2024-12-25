@@ -2,9 +2,9 @@ package widgets
 
 import "vendor:raylib"
 
-textboxes: [dynamic]TextBox
+textfieldes: [dynamic]TextField
 
-TextBox :: struct {
+TextField :: struct {
 	// The name of the widget for identification
 	Name:                         string,
 	// The position and size

@@ -10,9 +10,9 @@ main :: proc() {
 	// Move window to the center of the primary monitor. See monitor.odin
 	SetWindowToPrimaryMonitor(true)
 
-	// Define the TextBox
-	helloWorld := widgets.TextBox {
-		Name                         = "TextBox1",
+	// Define the TextField
+	helloWorld := widgets.TextField {
+		Name                         = "TextField1",
 		Visible                      = true,
 		Enabled                      = true,
 		Position                     = raylib.Rectangle{10, 10, 200, 20},
@@ -29,8 +29,8 @@ main :: proc() {
 		TextSelectionColor           = raylib.BLACK,
 		TextSelectionBackgroundColor = raylib.GRAY,
 	}
-	anotherWorld := widgets.TextBox {
-		Name                         = "TextBox2",
+	anotherWorld := widgets.TextField {
+		Name                         = "TextField2",
 		Visible                      = true,
 		Enabled                      = true,
 		Position                     = raylib.Rectangle{10, 30, 200, 20},
@@ -48,24 +48,24 @@ main :: proc() {
 		TextSelectionBackgroundColor = raylib.GRAY,
 	}
 
-	// Add the TextBox to the widget manager
+	// Add the TextField to the widget manager
 	// Old variables are not needed anymore
-	widgets.AddTextBox(helloWorld)
-	widgets.AddTextBox(anotherWorld)
-	// Or add multiple TextBoxes at once
-	// widgets.AddTextBoxes({helloWorld, anotherWorld})
+	widgets.AddTextField(helloWorld)
+	widgets.AddTextField(anotherWorld)
+	// Or add multiple TextFieldes at once
+	// widgets.AddTextFieldes({helloWorld, anotherWorld})
 
 	for raylib.WindowShouldClose() == false {
 		raylib.BeginDrawing()
 		raylib.ClearBackground(raylib.GRAY)
 
-		// Draw the TextBox
-		widgets.DrawTextBoxes()
+		// Draw the TextField
+		widgets.DrawTextFieldes()
 
-		// Get the text from the TextBox by name:
-		//   widgets.GetTextBox("TextBox1").Text
+		// Get the text from the TextField by name:
+		//   widgets.GetTextField("TextField1").Text
 		raylib.DrawText(
-			fmt.caprintf(widgets.GetTextBox("TextBox1").Text),
+			fmt.caprintf(widgets.GetTextField("TextField1").Text),
 			10,
 			60,
 			20,
