@@ -28,6 +28,7 @@ main :: proc() {
 		TextPadding                  = 2.0,
 		TextSelectionColor           = raylib.BLACK,
 		TextSelectionBackgroundColor = raylib.GRAY,
+		EnterLoosesFocus             = true, // Enter key will cause TextField to loose focus
 	}
 	anotherWorld := widgets.TextField {
 		Name                         = "TextField2",
