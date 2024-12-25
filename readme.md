@@ -11,8 +11,14 @@ Custom widgets written in Odin for raylib.
 ## TODO
 
 * [ ] Figure out other widgets to make
-* [ ] Add text selection to TextField
-* [ ] Add copy and paste functionality to TextField
+* [x] TextField
+  * [x] Keyboard inputs
+  * [x] Mouse position selection
+  * [ ] Text selection
+  * [ ] Copy and paste
+  * [ ] Textured boarders and background
+  * [ ] Alignment to a point: left, right, top, bottom
+  * [ ] Width auto adjust: text longer than field, window shrinking/expanding, max width
 
 ## Example
 
