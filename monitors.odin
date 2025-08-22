@@ -22,7 +22,11 @@ import "vendor:raylib"
 SetWindowToPrimaryMonitor :: proc(setFps: bool = false) {
 	assert(raylib.GetMonitorCount() > 0, "Error: No monitors detected")
 
-	monitorIndex := GetPrimaryMonitor()
+	when ODIN_OS == .Windows {
+		monitorIndex := raylib.GetCurrentMonitor()
+	} else when ODIN_OS == .Linux {
+		monitorIndex := GetPrimaryMonitor()
+	}
 	assert(monitorIndex >= 0, "Error: No primary monitor detected")
 
 	raylib.SetWindowMonitor(monitorIndex)
@@ -39,4 +43,9 @@ GetPrimaryMonitor :: proc() -> i32 {
 		}
 	}
 	return -1
+}
+
+// SetWindowToCenterMonitor is a deprecated function
+SetWindowToCenterMonitor :: proc() {
+	SetWindowToPrimaryMonitor()
 }
