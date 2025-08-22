@@ -13,30 +13,43 @@ DrawTextFieldes :: proc() {
 
 @(private)
 CopySelection :: proc(textfield: ^TextField) {
+	start: i32 = textfield.TextSelectionStart
+	end: i32 = textfield.TextSelectionEnd
+	if start > end {
+		start, end = end, start
+	}
+	if start == end {
+		return
+	}
+	if end == i32(len(textfield.Text)) {
+		end = i32(len(textfield.Text)) - 1
+	}
 	// Copy
-	if textfield.TextSelectionStart != -1 && textfield.TextSelectionEnd != -1 {
-		if textfield.TextSelectionStart > textfield.TextSelectionEnd {
-			textfield.TextSelectionStart, textfield.TextSelectionEnd =
-				textfield.TextSelectionEnd, textfield.TextSelectionStart
+	if start != -1 && end != -1 {
+		if start > end {
+			start, end = end, start
 		}
-		raylib.SetClipboardText(
-			strings.clone_to_cstring(
-				textfield.Text[textfield.TextSelectionStart:textfield.TextSelectionEnd],
-			),
-		)
+		raylib.SetClipboardText(strings.clone_to_cstring(textfield.Text[start:end]))
 	}
 }
 
 @(private)
 CutSelection :: proc(textfield: ^TextField) {
+	start: i32 = textfield.TextSelectionStart
+	end: i32 = textfield.TextSelectionEnd
+	if start > end {
+		start, end = end, start
+	}
+	if start == end {
+		return
+	}
+	if end == i32(len(textfield.Text)) {
+		end = i32(len(textfield.Text)) - 1
+	}
 	// Cut
-	first: string = textfield.Text[:textfield.TextSelectionStart]
-	second: string = textfield.Text[textfield.TextSelectionEnd:]
-	raylib.SetClipboardText(
-		strings.clone_to_cstring(
-			textfield.Text[textfield.TextSelectionStart:textfield.TextSelectionEnd],
-		),
-	)
+	first: string = textfield.Text[:start]
+	second: string = textfield.Text[end:]
+	raylib.SetClipboardText(strings.clone_to_cstring(textfield.Text[start:end]))
 	textfield.Text = strings.concatenate({first, second})
 	textfield.TextCursor = textfield.TextSelectionStart
 	textfield.TextSelectionStart = -1
