@@ -52,3 +52,66 @@ TextField :: struct {
 	// Enter Looses Focus
 	EnterLoosesFocus:             bool,
 }
+
+// Adds a TextField to the array
+AddTextField :: proc(textfield: TextField) {
+	append(&textfieldes, textfield)
+}
+
+// Adds multiple TextFieldes to the array
+AddTextFieldes :: proc(textfields: []TextField) {
+	for &textfield in textfieldes {
+		append(&textfieldes, textfield)
+	}
+}
+
+// Removes a TextField from the array
+RemoveTextField :: proc {
+	RemoveTextField_by_index,
+	RemoveTextField_by_name,
+}
+
+// Removes a TextField from the array by index
+RemoveTextField_by_index :: proc(index: i32) {
+	for _, i in textfieldes {
+		if i32(i) == index {
+			ordered_remove(&textfieldes, i)
+			return
+		}
+	}
+}
+
+// Removes a TextField from the array by name
+RemoveTextField_by_name :: proc(name: string) {
+	for &textfield, i in textfieldes {
+		if textfield.Name == name {
+			ordered_remove(&textfieldes, i)
+			break
+		}
+	}
+}
+
+// Get the TextField from the array
+// This returns a pointer to the TextField
+GetTextField :: proc {
+	GetTextField_by_index,
+	GetTextField_by_name,
+}
+
+GetTextField_by_index :: proc(id: int) -> ^TextField {
+	for &textfield, i in textfieldes {
+		if i == id {
+			return &textfieldes[i]
+		}
+	}
+	return nil
+}
+
+GetTextField_by_name :: proc(name: string) -> ^TextField {
+	for &textfield in textfieldes {
+		if textfield.Name == name {
+			return &textfield
+		}
+	}
+	return nil
+}
