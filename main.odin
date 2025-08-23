@@ -48,11 +48,27 @@ main :: proc() {
 		TextSelectionColor           = raylib.BLACK,
 		TextSelectionBackgroundColor = raylib.GRAY,
 	}
+	anotherButton := widgets.Button {
+		Name            = "Button1",
+		Visible         = true,
+		Enabled         = true,
+		Position        = raylib.Rectangle{10, 100, 200, 40},
+		FontSize        = 20,
+		FontSpacing     = 2,
+		FontColor       = raylib.BLACK,
+		Font            = raylib.GetFontDefault(),
+		Text            = "Click Me!",
+		BorderColor     = raylib.BLACK,
+		BackGroundColor = raylib.LIGHTGRAY,
+		PressedColor    = raylib.GRAY,
+		BorderThickness = 1.0,
+	}
 
 	// Add the TextField to the widget manager
 	// Old variables are not needed anymore
 	widgets.AddTextField(helloWorld)
 	widgets.AddTextField(anotherWorld)
+	widgets.AddButton(anotherButton)
 	// Or add multiple TextFieldes at once
 	// widgets.AddTextFieldes({helloWorld, anotherWorld})
 
@@ -60,8 +76,22 @@ main :: proc() {
 		raylib.BeginDrawing()
 		raylib.ClearBackground(raylib.GRAY)
 
-		// Draw the TextField
+		// Draw the widgets
 		widgets.DrawTextFieldes()
+		widgets.DrawButtons()
+
+		pressed_buttons := widgets.GetPressedButtons()
+		if len(pressed_buttons) > 0 {
+			for _, i in pressed_buttons {
+				raylib.DrawText(
+					fmt.caprintf("Pressed Button: %s", widgets.GetButton_by_index(i).Name),
+					10,
+					150,
+					20,
+					raylib.BLACK,
+				)
+			}
+		}
 
 		// Get the text from the TextField by name:
 		//   widgets.GetTextField("TextField1").Text

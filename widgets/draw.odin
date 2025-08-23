@@ -11,6 +11,12 @@ DrawTextFieldes :: proc() {
 	}
 }
 
+DrawButtons :: proc() {
+	for &button in buttons {
+		DrawButton(&button)
+	}
+}
+
 @(private)
 CopySelection :: proc(textfield: ^TextField) {
 	start: i32 = textfield.TextSelectionStart
@@ -489,6 +495,75 @@ DrawTextField :: proc(textfield: ^TextField) {
 			textfield.FontSize,
 			textfield.FontSpacing,
 			raylib.Color{0, 0, 0, 255},
+		)
+	}
+}
+
+@(private)
+DrawButton :: proc(button: ^Button) {
+	if button.Enabled && button.Visible {
+		// Check if the button is hovered
+		if raylib.CheckCollisionPointRec(raylib.GetMousePosition(), button.Position) {
+			button.Hovered = true
+		} else {
+			button.Hovered = false
+		}
+		// Check if the button is pressed
+		if raylib.IsMouseButtonDown(raylib.MouseButton.LEFT) &&
+		   raylib.CheckCollisionPointRec(raylib.GetMousePosition(), button.Position) {
+			button.Pressed = true
+		} else {
+			button.Pressed = false
+		}
+
+		// Draw the background
+		if button.Pressed {
+			raylib.DrawRectangleRec(button.Position, button.PressedColor)
+		} else {
+			raylib.DrawRectangleRec(button.Position, button.BackGroundColor)
+		}
+
+		// Draw the border
+		raylib.DrawRectangleLinesEx(button.Position, button.BorderThickness, button.BorderColor)
+
+		// Draw the text
+		raylib.DrawTextEx(
+			raylib.GetFontDefault(),
+			strings.clone_to_cstring(button.Text),
+			{
+				button.Position.x +
+				(button.Position.width / 2) -
+				(raylib.MeasureTextEx(button.Font, strings.clone_to_cstring(button.Text), button.FontSize, button.FontSpacing).x /
+						2),
+				button.Position.y +
+				(button.Position.height / 2) -
+				(raylib.MeasureTextEx(button.Font, strings.clone_to_cstring(button.Text), button.FontSize, button.FontSpacing).y /
+						2),
+			},
+			button.FontSize,
+			button.FontSpacing,
+			button.FontColor,
+		)
+	} else if !button.Enabled && button.Visible {
+		// Draw the button
+		raylib.DrawRectangleRec(button.Position, raylib.GRAY)
+		raylib.DrawRectangleLinesEx(button.Position, button.BorderThickness, button.BorderColor)
+		raylib.DrawTextEx(
+			raylib.GetFontDefault(),
+			strings.clone_to_cstring(button.Text),
+			{
+				button.Position.x +
+				(button.Position.width / 2) -
+				(raylib.MeasureTextEx(button.Font, strings.clone_to_cstring(button.Text), button.FontSize, button.FontSpacing).x /
+						2),
+				button.Position.y +
+				(button.Position.height / 2) -
+				(raylib.MeasureTextEx(button.Font, strings.clone_to_cstring(button.Text), button.FontSize, button.FontSpacing).y /
+						2),
+			},
+			button.FontSize,
+			button.FontSpacing,
+			button.FontColor,
 		)
 	}
 }
