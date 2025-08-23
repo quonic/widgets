@@ -51,7 +51,7 @@ CutSelection :: proc(textfield: ^TextField) {
 	second: string = textfield.Text[end:]
 	raylib.SetClipboardText(strings.clone_to_cstring(textfield.Text[start:end]))
 	textfield.Text = strings.concatenate({first, second})
-	textfield.TextCursor = textfield.TextSelectionStart
+	textfield.TextCursor = start
 	textfield.TextSelectionStart = -1
 	textfield.TextSelectionEnd = -1
 }
