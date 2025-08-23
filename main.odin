@@ -77,8 +77,7 @@ main :: proc() {
 		raylib.ClearBackground(raylib.GRAY)
 
 		// Draw the widgets
-		widgets.DrawTextFieldes()
-		widgets.DrawButtons()
+		widgets.DrawWidgets()
 
 		pressed_buttons := widgets.GetPressedButtons()
 		if len(pressed_buttons) > 0 {

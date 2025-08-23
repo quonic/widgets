@@ -5,6 +5,11 @@ import "core:strings"
 import "core:unicode/utf8"
 import "vendor:raylib"
 
+DrawWidgets :: proc() {
+	DrawTextFieldes()
+	DrawButtons()
+}
+
 DrawTextFieldes :: proc() {
 	for &textfield in textfieldes {
 		DrawTextField(&textfield)
