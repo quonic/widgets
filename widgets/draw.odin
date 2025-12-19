@@ -149,32 +149,48 @@ DrawTextField :: proc(textfield: ^TextField) {
 				// Get the cursor position relitive to the text
 				x := raylib.GetMousePosition().x - textfield.Position.x - textfield.TextPadding
 
-				// Find the nearest x point inbetween characters
-				for _, i in textfield.Text {
-					after_x: f32 = textfield.Position.x - textfield.TextPadding
-
-					cur_x :=
-						raylib.MeasureTextEx(textfield.Font, strings.clone_to_cstring(textfield.Text[:i]), textfield.FontSize, textfield.FontSpacing).x
-
-					if i < len(textfield.Text) {
-						after_x =
-							raylib.MeasureTextEx(textfield.Font, strings.clone_to_cstring(textfield.Text[:i + 1]), textfield.FontSize, textfield.FontSpacing).x
-					}
-
-					// Figure out the nearest point between the two characters
-					if x > cur_x && x < after_x {
-						if x - cur_x < after_x - x {
-							textfield.TextCursor = i32(i)
-							break
-						} else {
-							textfield.TextCursor = i32(i) + 1
-							break
-						}
-					}
+				if x < 0 {
 					if textfield.TextSelectionStart == -1 {
-						textfield.TextSelectionStart = textfield.TextCursor
+						textfield.TextSelectionStart = 0
 					} else {
-						textfield.TextSelectionEnd = textfield.TextCursor
+						textfield.TextSelectionEnd = 0
+					}
+				} else if x >
+				   raylib.MeasureTextEx(textfield.Font, strings.clone_to_cstring(textfield.Text[:]), textfield.FontSize, textfield.FontSpacing).x {
+					if textfield.TextSelectionStart == -1 {
+						textfield.TextSelectionStart = i32(len(textfield.Text))
+					} else {
+						textfield.TextSelectionEnd = i32(len(textfield.Text))
+					}
+				} else {
+
+					// Find the nearest x point inbetween characters
+					for _, i in textfield.Text {
+						after_x: f32 = textfield.Position.x - textfield.TextPadding
+
+						cur_x :=
+							raylib.MeasureTextEx(textfield.Font, strings.clone_to_cstring(textfield.Text[:i]), textfield.FontSize, textfield.FontSpacing).x
+
+						if i < len(textfield.Text) {
+							after_x =
+								raylib.MeasureTextEx(textfield.Font, strings.clone_to_cstring(textfield.Text[:i + 1]), textfield.FontSize, textfield.FontSpacing).x
+						}
+
+						// Figure out the nearest point between the two characters
+						if x > cur_x && x < after_x {
+							if x - cur_x < after_x - x {
+								textfield.TextCursor = i32(i)
+								break
+							} else {
+								textfield.TextCursor = i32(i) + 1
+								break
+							}
+						}
+						if textfield.TextSelectionStart == -1 {
+							textfield.TextSelectionStart = textfield.TextCursor
+						} else {
+							textfield.TextSelectionEnd = textfield.TextCursor
+						}
 					}
 				}
 			} else {
